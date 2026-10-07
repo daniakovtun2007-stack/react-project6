@@ -1,16 +1,113 @@
-# React + Vite
+# React Shop Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Це React-додаток з авторизацією, особистим кабінетом, каталогом товарів, кошиком і перемикачем світлої/темної теми.
 
-Currently, two official plugins are available:
+## Технології
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- Vite
+- React Router
+- Bootstrap 5
 
-## React Compiler
+## Вимоги
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- npm
 
-## Expanding the ESLint configuration
+## Встановлення
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```
+
+## Запуск у розробці
+
+```bash
+npm run dev
+```
+
+Після запуску відкрийте адресу, яка покажеться в терміналі, зазвичай:
+
+```bash
+http://localhost:5173/
+```
+
+## Збірка для продакшну
+
+```bash
+npm run build
+```
+
+Результат збірки буде в папці:
+
+```bash
+dist/
+```
+
+## Деплой на Netlify
+
+### Варіант 1: через Netlify CLI
+
+1. Встановіть CLI, якщо його ще немає:
+
+```bash
+npm install -D netlify-cli
+```
+
+2. Авторизуйтесь у Netlify:
+
+```bash
+npx netlify login
+```
+
+3. Зробіть продакшн-деплой:
+
+```bash
+npx netlify deploy --prod --dir=dist
+```
+
+### Варіант 2: через токен
+
+```bash
+set NETLIFY_AUTH_TOKEN=your_token_here
+npx netlify deploy --prod --dir=dist
+```
+
+Для macOS/Linux:
+
+```bash
+export NETLIFY_AUTH_TOKEN=your_token_here
+npx netlify deploy --prod --dir=dist
+```
+
+### Варіант 3: якщо проект ще не прив’язаний до Netlify
+
+```bash
+npx netlify link
+npx netlify deploy --prod --dir=dist
+```
+
+## Обліковий запис для входу
+
+- Email: `demo@example.com`
+- Password: `demo-password`
+
+Авторизація реалізована лише на стороні клієнта для демонстрації та не призначена для реальних облікових записів.
+
+## Функціонал
+
+- Авторизація
+- Пам’ятання email через checkbox
+- Перемикання light/dark mode
+- Каталог товарів з пошуком та фільтрацією по категоріях
+- Кошик із зміною кількості товарів
+- Оформлення замовлення
+- Зберігання кошика і даних теми у localStorage
+
+## Корисні команди
+
+```bash
+npm run dev
+npm run build
+npx netlify deploy --prod --dir=dist
+```

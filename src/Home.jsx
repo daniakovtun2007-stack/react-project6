@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
@@ -41,9 +41,9 @@ const INITIAL_PRODUCTS = [
   }
 ];
 
-function Home() {
+function Home({ theme, toggleTheme }) {
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState('');
+  const [userEmail] = useState(localStorage.getItem('saved_email') || 'demo@example.com');
 
   const [products] = useState(INITIAL_PRODUCTS);
   const [cart, setCart] = useState(() => {
@@ -53,7 +53,10 @@ function Home() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Усі');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
+  const [activeOrdersCount, setActiveOrdersCount] = useState(() => {
+    const savedValue = Number(localStorage.getItem('active_orders_count') || '0');
+    return Number.isFinite(savedValue) ? savedValue : 0;
+  });
 
   const shopRef = useRef(null);
 
@@ -61,14 +64,18 @@ function Home() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
       navigate('/');
-    } else {
-      setUserEmail('daniakovtun2007@gmail.com');
+      return;
     }
+
   }, [navigate]);
 
   useEffect(() => {
     localStorage.setItem('shop_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('active_orders_count', String(activeOrdersCount));
+  }, [activeOrdersCount]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
@@ -76,7 +83,7 @@ function Home() {
   };
 
   const scrollToShop = () => {
-    shopRef.current?.scrollIntoView({ behavior: 'smooth' });
+    shopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const addToCart = (product) => {
@@ -87,6 +94,7 @@ function Home() {
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
+
       return [...prevCart, { ...product, quantity: 1 }];
     });
   };
@@ -96,8 +104,8 @@ function Home() {
       prevCart
         .map((item) => {
           if (item.id === id) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
+            const nextQty = item.quantity + delta;
+            return nextQty > 0 ? { ...item, quantity: nextQty } : null;
           }
           return item;
         })
@@ -110,16 +118,17 @@ function Home() {
   };
 
   const handleCheckout = () => {
-    alert('Дякуємо за покупку! Ваше замовлення успішно оформлено.');
     setActiveOrdersCount((prev) => prev + 1);
     setCart([]);
     setIsCartOpen(false);
+    window.alert('Дякуємо за покупку! Ваше замовлення успішно оформлено.');
   };
 
   const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const categories = ['Усі', ...new Set(products.map((p) => p.category))];
+  const categories = useMemo(() => ['Усі', ...new Set(products.map((p) => p.category))], [products]);
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === 'Усі' || product.category === selectedCategory;
@@ -127,79 +136,111 @@ function Home() {
   });
 
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <div className="logo-section">
-          <span className="logo-icon">🚀</span>
-          <span className="logo-text">MyDashboard</span>
-        </div>
+    <div className="home-container bg-light min-vh-100">
+      <header className="home-header bg-white border-bottom shadow-sm sticky-top">
+        <div className="container-fluid px-3 px-lg-4">
+          <div className="d-flex align-items-center justify-content-between py-3 gap-3">
+            <div className="d-flex align-items-center gap-2">
+              <span className="logo-icon">🚀</span>
+              <span className="logo-text text-primary fw-bold">MyDashboard</span>
+            </div>
 
-        <div className="user-profile">
-          <button className="cart-header-btn" onClick={() => setIsCartOpen(true)}>
-            🛒 Кошик <span className="cart-badge">{totalItemsCount}</span>
-          </button>
-          <span className="user-email">{userEmail}</span>
-          <button onClick={handleLogout} className="logout-button">
-            Вийти
-          </button>
+            <div className="d-flex align-items-center gap-3">
+              <button className="btn btn-primary position-relative" onClick={() => setIsCartOpen(true)}>
+                🛒 Кошик
+                <span className="badge text-bg-light ms-2">{totalItemsCount}</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm home-theme-toggle"
+                onClick={toggleTheme}
+                aria-label={theme === 'light' ? 'Увімкнути темну тему' : 'Увімкнути світлу тему'}
+              >
+                {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+              </button>
+              <span className="user-email text-secondary d-none d-md-inline">{userEmail}</span>
+              <button onClick={handleLogout} className="btn btn-outline-danger btn-sm">
+                Вийти
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="home-content">
-        <section className="welcome-card">
-          <h1>Вітаємо в особистому кабінеті!</h1>
-          <p>
-            Ви успішно авторизувалися в системі. Тут ви можете керувати своїм
-            акаунтом та здійснювати покупки в нашому каталозі.
-          </p>
-          <button className="primary-action-btn" onClick={scrollToShop}>
-            Перейти до покупок 👇
-          </button>
-        </section>
-
-        <section className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">🛍️</div>
-            <div className="stat-info">
-              <h3>{activeOrdersCount}</h3>
-              <p>Активних замовлень</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">💎</div>
-            <div className="stat-info">
-              <h3>250</h3>
-              <p>Бонусних балів</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">🔔</div>
-            <div className="stat-info">
-              <h3>2</h3>
-              <p>Нових сповіщення</p>
-            </div>
+      <main className="container py-4 py-lg-5">
+        <section className="welcome-panel card border-0 shadow-sm mb-4">
+          <div className="card-body p-4 p-lg-5 text-center text-white">
+            <p className="text-uppercase small fw-semibold mb-2 text-white-50">Особистий кабінет</p>
+            <h1 className="display-6 fw-bold mb-3">Вітаємо в особистому кабінеті!</h1>
+            <p className="mx-auto mb-4 text-white-50" style={{ maxWidth: '42rem' }}>
+              Ви успішно авторизувалися в системі. Тут ви можете керувати своїм акаунтом та
+              здійснювати покупки в нашому каталозі.
+            </p>
+            <button className="btn btn-light btn-lg fw-semibold px-4" onClick={scrollToShop}>
+              Перейти до покупок 👇
+            </button>
           </div>
         </section>
 
-        <section className="shop-section" ref={shopRef}>
-          <div className="shop-header">
-            <h2>Каталог товарів</h2>
-            <input
-              type="text"
-              placeholder="Пошук товарів..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="shop-search-input"
-            />
+        <section className="row g-3 mb-4">
+          <div className="col-12 col-md-4">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body d-flex align-items-center gap-3">
+                <div className="stat-icon">🛍️</div>
+                <div>
+                  <h3 className="mb-0 fw-bold">{activeOrdersCount}</h3>
+                  <p className="mb-0 text-secondary">Активних замовлень</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="categories-bar">
+          <div className="col-12 col-md-4">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body d-flex align-items-center gap-3">
+                <div className="stat-icon">💎</div>
+                <div>
+                  <h3 className="mb-0 fw-bold">250</h3>
+                  <p className="mb-0 text-secondary">Бонусних балів</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-12 col-md-4">
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body d-flex align-items-center gap-3">
+                <div className="stat-icon">🔔</div>
+                <div>
+                  <h3 className="mb-0 fw-bold">2</h3>
+                  <p className="mb-0 text-secondary">Нових сповіщення</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="card border-0 shadow-sm p-3 p-lg-4" ref={shopRef}>
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <h2 className="mb-0 fw-bold">Каталог товарів</h2>
+            <div className="input-group search-field" style={{ maxWidth: '22rem' }}>
+              <span className="input-group-text bg-white">🔎</span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Пошук товарів..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="btn-group flex-wrap gap-2 mb-4" role="group" aria-label="Категорії товарів">
             {categories.map((cat) => (
               <button
                 key={cat}
-                className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
+                type="button"
+                className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-outline-primary'} rounded-pill`}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}
@@ -207,72 +248,97 @@ function Home() {
             ))}
           </div>
 
-          <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <img src={product.image} alt={product.name} className="product-image" />
-                <div className="product-details">
-                  <span className="product-category">{product.category}</span>
-                  <h3 className="product-title">{product.name}</h3>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-bottom">
-                    <span className="product-price">{product.price} ₴</span>
-                    <button className="add-to-cart-btn" onClick={() => addToCart(product)}>
-                      + Додати
-                    </button>
+          {filteredProducts.length === 0 ? (
+            <div className="alert alert-info mb-0" role="alert">
+              За вашим запитом нічого не знайдено. Спробуйте іншу назву або категорію.
+            </div>
+          ) : (
+            <div className="row g-4">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="col-12 col-md-6 col-xl-4">
+                  <div className="card product-card h-100 border-0 shadow-sm">
+                    <img src={product.image} alt={product.name} className="card-img-top product-image" />
+                    <div className="card-body d-flex flex-column">
+                      <span className="text-primary small fw-semibold mb-2">{product.category}</span>
+                      <h3 className="h5 fw-bold mb-2">{product.name}</h3>
+                      <p className="text-secondary flex-grow-1">{product.description}</p>
+                      <div className="d-flex align-items-center justify-content-between mt-3">
+                        <span className="fw-bold fs-5 text-dark">{product.price} ₴</span>
+                        <button className="btn btn-primary" onClick={() => addToCart(product)}>
+                          + Додати
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
       {isCartOpen && (
-        <div className="cart-overlay" onClick={() => setIsCartOpen(false)}>
-          <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="cart-modal-header">
-              <h2>Ваш кошик</h2>
-              <button className="close-cart-btn" onClick={() => setIsCartOpen(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="modal-backdrop fade show" onClick={() => setIsCartOpen(false)} />
+      )}
 
-            {cart.length === 0 ? (
-              <p className="empty-cart-msg">Ваш кошик порожній</p>
-            ) : (
-              <div className="cart-items-list">
-                {cart.map((item) => (
-                  <div key={item.id} className="cart-item">
-                    <img src={item.image} alt={item.name} className="cart-item-img" />
-                    <div className="cart-item-info">
-                      <h4>{item.name}</h4>
-                      <p>{item.price} ₴</p>
-                    </div>
-                    <div className="cart-quantity-controls">
-                      <button onClick={() => updateQuantity(item.id, -1)}>-</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1)}>+</button>
-                    </div>
-                    <button className="remove-item-btn" onClick={() => removeFromCart(item.id)}>
-                      🗑️
-                    </button>
+      {isCartOpen && (
+        <div className="modal d-block" tabIndex="-1" role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content border-0 shadow-lg">
+              <div className="modal-header">
+                <h2 className="modal-title h4 mb-0">Ваш кошик</h2>
+                <button type="button" className="btn-close" onClick={() => setIsCartOpen(false)} aria-label="Закрити" />
+              </div>
+
+              <div className="modal-body">
+                {cart.length === 0 ? (
+                  <div className="text-center py-5">
+                    <div className="display-6 mb-3">🛒</div>
+                    <p className="mb-0 text-secondary">Ваш кошик порожній</p>
                   </div>
-                ))}
+                ) : (
+                  <div className="list-group list-group-flush">
+                    {cart.map((item) => (
+                      <div key={item.id} className="list-group-item px-0 py-3">
+                        <div className="d-flex align-items-center gap-3">
+                          <img src={item.image} alt={item.name} className="cart-item-img rounded" />
+                          <div className="flex-grow-1 min-width-0">
+                            <h4 className="h6 mb-1 text-truncate">{item.name}</h4>
+                            <p className="mb-0 text-secondary">{item.price} ₴</p>
+                          </div>
+                          <div className="btn-group btn-group-sm" role="group" aria-label="Кількість товарів">
+                            <button type="button" className="btn btn-outline-secondary" onClick={() => updateQuantity(item.id, -1)}>
+                              −
+                            </button>
+                            <button type="button" className="btn btn-outline-secondary disabled" aria-disabled="true">
+                              {item.quantity}
+                            </button>
+                            <button type="button" className="btn btn-outline-secondary" onClick={() => updateQuantity(item.id, 1)}>
+                              +
+                            </button>
+                          </div>
+                          <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => removeFromCart(item.id)}>
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
 
-            {cart.length > 0 && (
-              <div className="cart-modal-footer">
-                <div className="total-row">
-                  <span>Загальна сума:</span>
-                  <strong>{totalPrice} ₴</strong>
+              {cart.length > 0 && (
+                <div className="modal-footer flex-column align-items-stretch">
+                  <div className="d-flex justify-content-between align-items-center mb-2 fw-semibold">
+                    <span>Загальна сума:</span>
+                    <span>{totalPrice} ₴</span>
+                  </div>
+                  <button type="button" className="btn btn-primary btn-lg" onClick={handleCheckout}>
+                    Оформити замовлення
+                  </button>
                 </div>
-                <button className="checkout-btn" onClick={handleCheckout}>
-                  Оформити замовлення
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
