@@ -16,7 +16,7 @@ function Auth({ theme, toggleTheme }) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (normalizedEmail === 'demo@example.com' && password === 'demo-password') {
+    if (normalizedEmail === 'daniakovtun2007@gmail.com' && password === '19022008') {
       localStorage.setItem('isLoggedIn', 'true');
 
       if (rememberMe) {
