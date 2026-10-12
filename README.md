@@ -122,7 +122,9 @@ mvn spring-boot:run
 
 Backend надає `POST /api/auth/login` для входу та захищений `GET /api/auth/me` для перевірки JWT. Термін дії access token — 15 хвилин; фронтенд тримає його лише в пам’яті вкладки. Користувач наразі один і зберігається в пам’яті, база даних та реєстрація не налаштовані.
 
-Netlify деплоїть лише фронтенд. Для продакшну окремо розгорніть backend, задайте там `FRONTEND_ORIGIN` на адресу сайту та зберігайте секрети в змінних середовища хостингу. Під час frontend build задайте `VITE_API_BASE_URL` адресою backend, наприклад `https://api.example.com`.
+Для production на Netlify `netlify/functions/auth.js` обробляє ті самі API endpoints через Netlify Functions, тому окремий Spring-сервер не потрібен. У **Site configuration → Environment variables** додайте `APP_AUTH_EMAIL`, `APP_AUTH_PASSWORD` і `JWT_SECRET_BASE64` та надайте їм scope **Functions**. Згенеруйте новий секрет не коротший за 32 байти; ніколи не додавайте ці значення до репозиторію. Після збереження змінних запустіть новий deploy сайту. У production `VITE_API_BASE_URL` залиште порожнім, щоб запити йшли на той самий Netlify-домен.
+
+Spring Boot backend залишається варіантом для локальної розробки з IntelliJ IDEA: Vite проксіює `/api` на `http://localhost:8080`. Для іншого хостингу Spring backend потрібно окремо розгорнути й задати `VITE_API_BASE_URL` під час frontend build.
 
 ## Функціонал
 

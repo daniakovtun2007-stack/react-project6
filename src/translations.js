@@ -19,6 +19,7 @@ const translations = {
       hidePassword: 'Сховати пароль',
       error: 'Неправильний емейл або пароль! Спробуйте ще раз.',
       invalidInput: 'Введіть коректний email і пароль.',
+      serverNotConfigured: 'Сервер входу не налаштований. Додайте APP_AUTH_EMAIL, APP_AUTH_PASSWORD і JWT_SECRET_BASE64 у змінні середовища Netlify та повторно опублікуйте сайт.',
       serverError: 'Не вдалося з’єднатися із сервером. Спробуйте пізніше.',
       sessionError: 'Сесію завершено або сервер недоступний. Увійдіть знову.',
       submitting: 'Вхід...'
@@ -93,6 +94,7 @@ const translations = {
       hidePassword: 'Hide password',
       error: 'Incorrect email or password. Please try again.',
       invalidInput: 'Enter a valid email and password.',
+      serverNotConfigured: 'The authentication service is not configured. Set APP_AUTH_EMAIL, APP_AUTH_PASSWORD, and JWT_SECRET_BASE64 in Netlify environment variables, then redeploy the site.',
       serverError: 'Could not connect to the server. Please try again later.',
       sessionError: 'Your session has expired or the server is unavailable. Please sign in again.',
       submitting: 'Signing in...'

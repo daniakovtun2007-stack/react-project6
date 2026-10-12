@@ -41,6 +41,8 @@ function Auth({ theme, toggleTheme, toggleLanguage, onLoginSuccess, t }) {
             ? t.login.error
             : response.status === 400
               ? t.login.invalidInput
+              : response.status === 503
+                ? t.login.serverNotConfigured
               : t.login.serverError
         );
         return;
