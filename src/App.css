@@ -41,6 +41,15 @@ html[data-bs-theme='dark'] .auth-wrapper {
   box-shadow: 0 0.5rem 1rem rgba(15, 23, 42, 0.12);
 }
 
+.language-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1080;
+  border-radius: 999px;
+  box-shadow: 0 0.5rem 1rem rgba(15, 23, 42, 0.12);
+}
+
 .home-theme-toggle {
   position: static;
   box-shadow: none;

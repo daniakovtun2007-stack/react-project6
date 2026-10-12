@@ -1,0 +1,42 @@
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1090;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(28rem, calc(100vw - 2rem));
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.18);
+}
+
+.notification-error {
+  border: 1px solid #f1aeb5;
+  background: #f8d7da;
+  color: #58151c;
+}
+
+.notification-success {
+  border: 1px solid #a3cfbb;
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.notification-close {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+html[data-bs-theme='dark'] .notification-success {
+  border-color: #0f5132;
+  background: #0a2e1f;
+  color: #a3cfbb;
+}

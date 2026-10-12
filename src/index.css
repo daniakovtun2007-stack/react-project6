@@ -34,3 +34,34 @@ button,
 input {
   font: inherit;
 }
+
+.control-toggle {
+  min-height: 2.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 2px solid #172033 !important;
+  border-radius: 999px;
+  background-color: #fff !important;
+  color: #172033 !important;
+  font-weight: 750;
+  letter-spacing: 0.025em;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.app-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+.control-toggle:hover {
+  border-color: #0d6efd !important;
+  background-color: #eaf2ff !important;
+  color: #102a56 !important;
+}
+
+.control-toggle:focus-visible {
+  outline: 3px solid #ffbf00;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 0.2rem rgba(255, 191, 0, 0.35);
+}
